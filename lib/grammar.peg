@@ -2,163 +2,163 @@
 // Entry Point
 
 Template = __ el:Root __ {
-	return el;
+    return el;
 }
 
 //
 // Productions
 
 Root
-	= SimpleElement
-	/ Element
+    = SimpleElement
+    / Element
 
 SimpleElement
-	= ElementType _ StringLike TERM
-	/ ElementType TERM
+    = ElementType _ StringLike TERM
+    / ElementType TERM
 
 Element
-	= ElementType _ Block
+    = ElementType _ Block
 
 ElementType
-	= SimpleSelector AttributeList?
+    = SimpleSelector AttributeList?
 
 SimpleSelector
-	= NodeName NodeId? ClassList?
-	/ NodeId ClassList?
-	/ ClassList
+    = NodeName NodeId? ClassList?
+    / NodeId ClassList?
+    / ClassList
 
 NodeName
-	= Symbol
+    = Symbol
 
 NodeId
-	= '#' Symbol
+    = '#' Symbol
 
 ClassList
-	= ClassItem+
+    = ClassItem+
 
 ClassItem
-	= '.' Symbol (':' Variable)?
-	/ '.' Variable '?'?
-	/ '.#{' _ Expression '}'
+    = '.' Symbol (':' Variable)?
+    / '.' Variable '?'?
+    / '.#{' _ Expression '}'
 
 AttributeList
-	= '(' _ Attributes ')'
+    = '(' _ Attributes ')'
 
 Attributes
-	= Attribute (',' _ Attribute)*
+    = Attribute (',' _ Attribute)*
 
 Attribute
-	= Key _ '=' _ Expression
-	/ Key Delegate? _ '->' _ EventName
+    = Key _ '=' _ Expression
+    / Key Delegate? _ '->' _ EventName
 
 Key
-	= [a-z_]i [a-z0-9_-]i*
+    = [a-z_]i [a-z0-9_-]i*
 
 Delegate
-	= '(' [^)]+ ')'
+    = '(' [^)]+ ')'
 
 Expression
-	= Symbol _
-	/ String _
-	/ Variable _
+    = Symbol _
+    / String _
+    / Variable _
 
 EventName
-	= [a-z_]i [a-z0-9_:-]i* _
+    = [a-z_]i [a-z0-9_:-]i* _
 
 Block
-	= '{' __ BlockInner* '}' __
+    = '{' __ BlockInner* '}' __
 
 BlockInner
-	= SimpleElement
-	/ StringLike __
-	/ BoundCollection __
-	/ Element
+    = SimpleElement
+    / StringLike __
+    / BoundCollection __
+    / Element
 
 StringLike
-	= String
-	/ Variable
+    = String
+    / Variable
 
 String
-	= '"' str:DoubleQuotedStringItem* '"' _ {
-		if (str.length === 1 && typeof str[0] === 'string') {
-			return str[0];
-		} else {
-			throw new Error("no interp");
-		}
-	}
-	/ "'" str:SingleQuotedStringItem* "'" _ {
-		if (str.length === 1 && typeof str[0] === 'string') {
-			return str[0];
-		} else {
-			throw new Error("no interp");
-		}
-	}
+    = '"' str:DoubleQuotedStringItem* '"' _ {
+        if (str.length === 1 && typeof str[0] === 'string') {
+            return str[0];
+        } else {
+            throw new Error("no interp");
+        }
+    }
+    / "'" str:SingleQuotedStringItem* "'" _ {
+        if (str.length === 1 && typeof str[0] === 'string') {
+            return str[0];
+        } else {
+            throw new Error("no interp");
+        }
+    }
 
 DoubleQuotedStringItem
-	= $( DoubleQuotedStringChar+ )
-	/ Interpolation
+    = $( DoubleQuotedStringChar+ )
+    / Interpolation
 
 DoubleQuotedStringChar
-	= '\\n'     { return "\n"; }
+    = '\\n'     { return "\n"; }
     / '\\t'     { return "\t"; }
     / '\\"'     { return '"'; }
     / '\\\\'    { return "\\"; }
     / [^\"]
 
 SingleQuotedStringItem
-	= $( SingleQuotedStringChar+ )
-	/ Interpolation
+    = $( SingleQuotedStringChar+ )
+    / Interpolation
 
 SingleQuotedStringChar
-	= '\\n'     { return "\n"; }
+    = '\\n'     { return "\n"; }
     / '\\t'     { return "\t"; }
     / "\\'"     { return "'"; }
     / '\\\\'    { return "\\"; }
     / [^\']
 
 Interpolation
-	= '#{' Expression '}'
+    = '#{' Expression '}'
 
 Variable
-	= UnboundVariable
-	/ BoundVariable
+    = UnboundVariable
+    / BoundVariable
 
 UnboundVariable
-	= '$' VariableName
+    = '$' VariableName
 
 BoundVariable
-	= '$$' VariableName
+    = '$$' VariableName
 
 BoundCollection
-	= '@' VariableName
+    = '@' VariableName
 
 VariableName
-	= $( [a-z_]i [a-z0-9_-]i* )
+    = $( [a-z_]i [a-z0-9_-]i* )
 
 Symbol
-	= $( [a-z_]i [a-z0-9_-]i* )
+    = $( [a-z_]i [a-z0-9_-]i* )
 
 //
 // Helpers
 
 _
-	= [ \t]*
+    = [ \t]*
 
 __
-	= IGNORE*
+    = IGNORE*
 
 NL
-	= '\n'
-	/ '\r' '\n'?
+    = '\n'
+    / '\r' '\n'?
 
 COMMENT
-	= '//' [^\r\n]*
+    = '//' [^\r\n]*
 
 IGNORE
-	= [ \t\r\n]
-	/ COMMENT
+    = [ \t\r\n]
+    / COMMENT
 
 TERM
-	= _ &'}'
-	/ _ COMMENT? NL __
+    = _ &'}'
+    / _ COMMENT? NL __
     / _ COMMENT? !.
