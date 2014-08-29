@@ -4,6 +4,7 @@
 
 [x] if/else
 [ ] string interpolation
+[x] special syntax for dealing with empty-collection case
 
 ### future
 

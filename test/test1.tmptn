@@ -11,6 +11,10 @@ div(foo = bar, href="/foo/bar.php", click(a) -> foo:bar) {
 	br
 	br
 
+	@mycollection else {
+		div.warning "No results found"
+	}
+
 	if "foo" {
 		div#foo.bar
 	}

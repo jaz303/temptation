@@ -78,6 +78,9 @@ BlockInner
 IfStatement
     = If _ Expression Block (Else _ Block)?
 
+BoundCollection
+    = '@' VariableName _ (Else _ Block)? _
+
 StringLike
     = String
     / Variable
@@ -132,9 +135,6 @@ UnboundVariable
 
 BoundVariable
     = '$$' VariableName
-
-BoundCollection
-    = '@' VariableName
 
 VariableName
     = $( [a-z_]i [a-z0-9_-]i* )
