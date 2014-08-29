@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/jaz303/temptation/issues"
   },
-  "homepage": "https://github.com/jaz303/temptation"
+  "homepage": "https://github.com/jaz303/temptation",
+  "dependencies": {
+    "pegjs": "^0.8.0"
+  }
 }

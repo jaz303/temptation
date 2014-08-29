@@ -1,0 +1,43 @@
+// this is the root level container!
+div(foo = bar, href="/foo/bar.php", click(a) -> foo:bar) {
+	"welcome, "
+	$$name
+	". how are you today?"
+
+	// put a heading here
+	h1 "here's a heading!" // trailing comment
+
+	br
+	br
+	br
+
+	// add class foo, always
+	div.foo
+
+	// add class foo if $bar is truthy
+	div.foo:$bar
+
+	// add class foo if $foo is truthy
+	div.$foo?
+
+	// make class some complex expression
+	div.#{"foo"}
+
+	div.active
+
+	#foo.bar.baz {
+		.bar
+		.baz
+		#bleem "this is an item"
+	}
+
+	span.alert "what do you think about this?"
+
+	span {
+		"this is very important!"
+	}
+
+	ul {
+		@todos
+	}
+}
