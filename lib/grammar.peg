@@ -69,10 +69,14 @@ Block
     = '{' __ BlockInner* '}' __
 
 BlockInner
-    = SimpleElement
+    = IfStatement
+    / SimpleElement
     / StringLike __
     / BoundCollection __
     / Element
+
+IfStatement
+    = If _ Expression Block (Else _ Block)?
 
 StringLike
     = String
@@ -136,7 +140,19 @@ VariableName
     = $( [a-z_]i [a-z0-9_-]i* )
 
 Symbol
-    = $( [a-z_]i [a-z0-9_-]i* )
+    = $( SymbolHead SymbolRest* )
+
+SymbolHead
+    = [a-z_]i
+
+SymbolRest
+    = [a-z0-9_-]i
+
+//
+// Tokens
+
+If      = 'if'      !SymbolRest
+Else    = 'else'    !SymbolRest
 
 //
 // Helpers

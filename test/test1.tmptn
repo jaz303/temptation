@@ -11,6 +11,17 @@ div(foo = bar, href="/foo/bar.php", click(a) -> foo:bar) {
 	br
 	br
 
+	if "foo" {
+		div#foo.bar
+	}
+
+	if $bleem {
+
+	} else {
+		// foo
+		adsad
+	}
+
 	// add class foo, always
 	div.foo
 
