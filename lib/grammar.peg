@@ -13,73 +13,181 @@ Root
     / Element
 
 SimpleElement
-    = ElementType _ StringLike TERM
-    / ElementType TERM
+    = el:ElementType _ str:StringLike TERM {
+        return {
+            type: "element",
+            el: el,
+            body: [str]
+        };
+    }
+    / el:ElementType TERM {
+        return {
+            type: "element",
+            el: el,
+            body: []
+        };
+    }
 
 Element
-    = ElementType _ Block
+    = el:ElementType _ body:Block {
+        return {
+            type: "element",
+            el: el,
+            body: body
+        };
+    }
 
 ElementType
-    = SimpleSelector AttributeList?
+    = sel:SimpleSelector attrs:AttributeList? {
+        sel.attrs = attrs;
+        return sel;
+    }
 
 SimpleSelector
-    = NodeName NodeId? ClassList?
-    / NodeId ClassList?
-    / ClassList
+    = name:NodeName id:NodeId? classes:ClassList? {
+        return {
+            type: "selector",
+            name: name,
+            id: id,
+            classes: classes || []
+        };
+    }
+    / id:NodeId classes:ClassList? {
+        return {
+            type: "selector",
+            name: "div",
+            id: id,
+            classes: classes || []
+        };
+    }
+    / classes:ClassList {
+        return {
+            type: "selector",
+            name: "div",
+            id: null,
+            classes: classes
+        };   
+    }
 
 NodeName
     = Symbol
 
 NodeId
-    = '#' Symbol
+    = '#' sym:Symbol {
+        return sym;
+    }
 
 ClassList
     = ClassItem+
 
 ClassItem
-    = '.' Symbol (':' Variable)?
-    / '.' Variable '?'?
-    / '.' Interpolation
+    = '.' name:Symbol predicate:(':' Variable)? {
+        if (predicate) {
+            return {
+                type: "class-toggle",
+                name: name,
+                predicate: predicate[1]
+            };
+        } else {
+            return {
+                type: "class-static",
+                name: name
+            };
+        }
+    }
+    / '.' variable:Variable predicate:'?'? {
+        if (predicate) {
+            return {
+                type: "class-toggle",
+                name: variable.name,
+                predicate: variable
+            }
+        }
+    }
+    / '.' exp:Interpolation {
+        return {
+            type: "class-dynamic",
+            expression: exp
+        }
+    }
 
 AttributeList
-    = '(' _ Attributes ')'
+    = '(' _ attrs:Attributes ')' {
+        return attrs;
+    }
 
 Attributes
-    = Attribute (',' _ Attribute)*
+    = head:Attribute tail:(',' _ Attribute)* {
+        var out = [head];
+        tail.forEach(function(t) {
+            out.push(t[2]);
+        });
+        return out;
+    }
 
 Attribute
-    = Key _ '=' _ Expression
-    / Key Delegate? _ '->' _ EventName
+    = key:Key _ '=' _ exp:Expression {
+        return {
+            type: "attribute-value",
+            key: key,
+            exp: exp
+        };
+    }
+    / key:Key del:Delegate? _ '->' _ evt:EventName {
+        return {
+            type: "attribute-event",
+            key: key,
+            delegate: del,
+            event: evt
+        };
+    }
 
 Key
-    = [a-z_]i [a-z0-9_-]i*
+    = $( [a-z_]i [a-z0-9_-]i* )
 
 Delegate
-    = '(' [^)]+ ')'
+    = '(' selector:$( [^)]+ ) ')' {
+        return selector.trim();
+    }
 
 Expression
-    = Symbol _
-    / String _
-    / Variable _
+    = x:Symbol _ { return x; }
+    / x:String _ { return x; }
+    / x:Variable _ { return x; }
 
 EventName
-    = [a-z_]i [a-z0-9_:-]i* _
+    = $( [a-z_]i [a-z0-9_:-]i* _ )
 
 Block
-    = '{' __ BlockInner* '}' __
+    = '{' __ exps:BlockInner* '}' __ {
+        return exps;
+    }
 
 BlockInner
     = IfStatement
     / SimpleElement
-    / StringLike __
-    / BoundCollection __
+    / str:StringLike __ { return str; }
+    / BoundCollection
     / Element
 
 IfStatement
-    = If _ Expression Block (Else _ Block)?
+    = If _ exp:Expression cons:Block alt:(Else _ Block)? {
+        return {
+            type: "if",
+            exp: exp,
+            consequent: cons,
+            alternate: alt ? alt[2] : null
+        };
+    }
 
 BoundCollection
-    = '@' VariableName _ (Else _ Block)? _
+    = '@' name:VariableName _ alt:(Else _ Block)? __ {
+        return {
+            type: "bound-collection",
+            name: name,
+            alternate: alt ? alt[2] : null
+        };
+    }
 
 StringLike
     = String
@@ -90,14 +198,20 @@ String
         if (str.length === 1 && typeof str[0] === 'string') {
             return str[0];
         } else {
-            console.log(str);
+            return {
+                "type": "interpolated-string",
+                "chunks": str
+            }
         }
     }
     / "'" str:SingleQuotedStringItem* "'" _ {
         if (str.length === 1 && typeof str[0] === 'string') {
             return str[0];
         } else {
-            console.log(str);
+            return {
+                "type": "interpolated-string",
+                "chunks": str
+            }
         }
     }
 
@@ -138,10 +252,20 @@ Variable
     / BoundVariable
 
 UnboundVariable
-    = '$' VariableName
+    = '$' name:VariableName {
+        return {
+            type: "variable",
+            name: name    
+        }
+    };
 
 BoundVariable
-    = '$$' VariableName
+    = '$$' name:VariableName {
+        return {
+            type: "bound-variable",
+            name: name    
+        }
+    }
 
 VariableName
     = $( [a-z_]i [a-z0-9_-]i* )
