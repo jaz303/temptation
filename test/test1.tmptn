@@ -1,8 +1,6 @@
 // this is the root level container!
 div(foo = bar, href="/foo/bar.php", click(a) -> foo:bar) {
-	"welcome, "
-	$$name
-	". how are you today?"
+	"welcome, #{$$name}. how are you today?"
 
 	// put a heading here
 	h1 "here's a heading!" // trailing comment

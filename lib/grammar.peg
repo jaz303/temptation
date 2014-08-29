@@ -39,7 +39,7 @@ ClassList
 ClassItem
     = '.' Symbol (':' Variable)?
     / '.' Variable '?'?
-    / '.#{' _ Expression '}'
+    / '.' Interpolation
 
 AttributeList
     = '(' _ Attributes ')'
@@ -90,14 +90,14 @@ String
         if (str.length === 1 && typeof str[0] === 'string') {
             return str[0];
         } else {
-            throw new Error("no interp");
+            console.log(str);
         }
     }
     / "'" str:SingleQuotedStringItem* "'" _ {
         if (str.length === 1 && typeof str[0] === 'string') {
             return str[0];
         } else {
-            throw new Error("no interp");
+            console.log(str);
         }
     }
 
@@ -110,7 +110,8 @@ DoubleQuotedStringChar
     / '\\t'     { return "\t"; }
     / '\\"'     { return '"'; }
     / '\\\\'    { return "\\"; }
-    / [^\"]
+    / '#' !'{'  { return '#'; }
+    / [^\"#]
 
 SingleQuotedStringItem
     = $( SingleQuotedStringChar+ )
@@ -121,10 +122,16 @@ SingleQuotedStringChar
     / '\\t'     { return "\t"; }
     / "\\'"     { return "'"; }
     / '\\\\'    { return "\\"; }
-    / [^\']
+    / '#' !'{'  { return '#'; }
+    / [^\'#]
 
 Interpolation
-    = '#{' Expression '}'
+    = '#{' exp:Expression '}' {
+        return {
+            type: 'interpolation',
+            exp: exp
+        };
+    }
 
 Variable
     = UnboundVariable
