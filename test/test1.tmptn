@@ -1,6 +1,9 @@
 // this is the root level container!
 div(foo = bar, href="/foo/bar.php", click(a) -> foo:bar) {
-	"welcome, #{$$name}. how are you today?"
+	#bar "welcome, #{$$name}. how are you today?"
+
+	'foobar'
+	"bleem"
 
 	// put a heading here
 	h1 "here's a heading!" // trailing comment
@@ -14,7 +17,7 @@ div(foo = bar, href="/foo/bar.php", click(a) -> foo:bar) {
 	}
 
 	if "foo" {
-		div#foo.bar
+		div#foo.bar.baz.bleem
 	}
 
 	if $bleem {
@@ -25,7 +28,7 @@ div(foo = bar, href="/foo/bar.php", click(a) -> foo:bar) {
 	}
 
 	// add class foo, always
-	div.foo
+	div.foo(click -> bleem:baz)
 
 	// add class foo if $bar is truthy
 	div.foo:$bar
@@ -38,7 +41,7 @@ div(foo = bar, href="/foo/bar.php", click(a) -> foo:bar) {
 
 	div.active
 
-	#foo.bar.baz {
+	#foo.bar.baz.bleem {
 		.bar
 		.baz
 		#bleem "this is an item"

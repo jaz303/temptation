@@ -39,7 +39,7 @@ Element
 
 ElementType
     = sel:SimpleSelector attrs:AttributeList? {
-        sel.attrs = attrs;
+        sel.attributes = attrs || [];
         return sel;
     }
 
@@ -70,10 +70,10 @@ SimpleSelector
     }
 
 NodeName
-    = Symbol
+    = symbol
 
 NodeId
-    = '#' sym:Symbol {
+    = '#' sym:symbol {
         return sym;
     }
 
@@ -81,7 +81,7 @@ ClassList
     = ClassItem+
 
 ClassItem
-    = '.' name:Symbol predicate:(':' Variable)? {
+    = '.' name:symbol predicate:(':' Variable)? {
         if (predicate) {
             return {
                 type: "class-toggle",
@@ -91,7 +91,8 @@ ClassItem
         } else {
             return {
                 type: "class-static",
-                name: name
+                name: name.name,
+                predicate: name.name
             };
         }
     }
@@ -196,7 +197,10 @@ StringLike
 String
     = '"' str:DoubleQuotedStringItem* '"' _ {
         if (str.length === 1 && typeof str[0] === 'string') {
-            return str[0];
+            return {
+                type: "string",
+                value: str[0]
+            };
         } else {
             return {
                 "type": "interpolated-string",
@@ -206,7 +210,10 @@ String
     }
     / "'" str:SingleQuotedStringItem* "'" _ {
         if (str.length === 1 && typeof str[0] === 'string') {
-            return str[0];
+            return {
+                type: "string",
+                value: str[0]
+            };
         } else {
             return {
                 "type": "interpolated-string",
@@ -271,7 +278,12 @@ VariableName
     = $( [a-z_]i [a-z0-9_-]i* )
 
 Symbol
-    = $( SymbolHead SymbolRest* )
+    = sym:$( symbol ) {
+        return {
+            type: "symbol",
+            name: sym
+        };
+    }
 
 SymbolHead
     = [a-z_]i
@@ -309,3 +321,14 @@ TERM
     = _ &'}'
     / _ COMMENT? NL __
     / _ COMMENT? !.
+
+symbol
+    = sym:$( symbol_head symbol_rest* ) {
+        return sym;
+    }
+
+symbol_head
+    = [a-z_]i
+
+symbol_rest
+    = [a-z0-9_-]i
